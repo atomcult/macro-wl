@@ -14,7 +14,7 @@ OPT_DEVICE="${MACRO_DEVICE:-}"
   exit 1
 }
 
-stdbuf -oL ./grabkb "$OPT_DEVICE" | while read -r _key
+stdbuf -oL grabkb "$OPT_DEVICE" | while read -r _key
 do
   _cmd="$(eval echo "\${MACRO_$_key:-}")"
 
