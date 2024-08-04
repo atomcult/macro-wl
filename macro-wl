@@ -1,6 +1,7 @@
 #!/bin/sh -eu
 
-OPT_CONFIG="${MACRO_CONFIG:-./config.env}"
+: ${XDG_CONFIG_HOME:=$HOME/.config}
+OPT_CONFIG="${MACRO_CONFIG:-"${XDG_CONFIG_HOME}/macro-wl/config.env"}"
 
 ! [ -e "$OPT_CONFIG" ] ||
   . "$OPT_CONFIG"
