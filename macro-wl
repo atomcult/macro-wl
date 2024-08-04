@@ -1,0 +1,27 @@
+#!/bin/sh -eu
+
+OPT_CONFIG="${MACRO_CONFIG:-./config.env}"
+
+! [ -e "$OPT_CONFIG" ] ||
+  . "$OPT_CONFIG"
+
+OPT_DEVICE="${MACRO_DEVICE:-}"
+[ -z "${1:-}" ] ||
+  OPT_DEVICE="$1"
+
+[ -e "$OPT_DEVICE" ] || {
+  echo "USAGE: ${0} <device>" >&2
+  exit 1
+}
+
+stdbuf -oL ./grabkb "$OPT_DEVICE" | while read -r _key
+do
+  _cmd="$(eval echo "\${MACRO_$_key:-}")"
+
+  if [ -z "$_cmd" ]; then
+    printf " + %s (unset)\n" "$_key" >&2
+  else
+    printf " + %s => %s\n" "$_key" "$_cmd" >&2
+    sh -c "$_cmd" &
+  fi
+done

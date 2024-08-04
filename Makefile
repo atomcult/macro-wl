@@ -2,7 +2,7 @@ CC ?= c99
 LDFLAGS += -linput -levdev
 CFLAGS  += -I/usr/include/libevdev-1.0/
 
-PROG ?= macro-wl
+PROG ?= grabkb
 
 all:
-	$(CC) $(CFLAGS) main.c -o $(PROG) $(LDFLAGS)
+	$(CC) $(CFLAGS) $(PROG).c -o $(PROG) $(LDFLAGS)
