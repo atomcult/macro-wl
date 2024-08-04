@@ -10,7 +10,7 @@ BINDIR = ${PREFIX}/bin
 grabkb:
 	$(CC) $(CFLAGS) grabkb.c -o grabkb $(LDFLAGS)
 
-install:
+install: grabkb
 	mkdir -p ${DESTDIR}${BINDIR}
 	cp -f grabkb   ${DESTDIR}${BINDIR}/
 	cp -f macro-wl ${DESTDIR}${BINDIR}/
