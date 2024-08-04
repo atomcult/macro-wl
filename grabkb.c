@@ -7,7 +7,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <libevdev/libevdev.h>
+#include <libevdev.h>
 #include <libinput.h>
 
 static int open_restricted(const char *path, int flags, void *user_data)
