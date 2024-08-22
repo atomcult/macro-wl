@@ -3,7 +3,7 @@
 : ${XDG_CONFIG_HOME:=$HOME/.config}
 OPT_CONFIG="${MACRO_CONFIG:-"${XDG_CONFIG_HOME}/macro-wl/config.env"}"
 
-! [ -e "$OPT_CONFIG" ] ||
+! [ -f "$OPT_CONFIG" ] ||
   . "$OPT_CONFIG"
 
 OPT_DEVICE="${MACRO_DEVICE:-}"
@@ -19,7 +19,7 @@ OPT_QUIT_KEY="${MACRO_QUIT_KEY:-KEY_ESC}"
 
 stdbuf -oL grabkb "$OPT_DEVICE" | while read -r _key
 do
-  [ "$_key" != "$OPT_QUIT_KEY" ] || \
+  [ "$_key" != "$OPT_QUIT_KEY" ] ||
     break
 
   _cmd="$(eval echo "\${MACRO_$_key:-}")"
