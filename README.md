@@ -25,7 +25,7 @@ macro-wl </dev/input/by-id/...>
 ### Configuration
 
 Configuration is performed primarily via environment variables. These
-can optionally stored in a configuration file located, by default,
+can optionally be stored in a configuration file located, by default,
 at `${XDG_CONFIG_HOME}/macro-wl/config.env` or a file pointed to by
 `$MACRO_CONFIG`. The configuration file is simply a list of environment
 variables.
