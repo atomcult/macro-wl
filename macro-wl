@@ -25,10 +25,10 @@ do
   _cmd="$(eval echo "\${MACRO_$_key:-}")"
 
   [ -n "$_cmd" ] || {
-    printf " + %s (unset)\n" "$_key" >&2
+    echo " + ${_key} (unset)" >&2
     continue
   }
 
-  printf " + %s => %s\n" "$_key" "$_cmd" >&2
+  echo " + ${_key} => ${_cmd}" >&2
   sh -c "$_cmd" &
 done
