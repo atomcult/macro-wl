@@ -95,12 +95,8 @@ int main(int argc, char **argv) {
   fds.events = POLLIN;
   fds.revents = 0;
 
-  if (poll(&fds, 1, -1) > -1) {
-    do {
-      handle_events(context);
-    } while (poll(&fds, 1, -1) > -1);
-  }
-  handle_events(context);
+  while (poll(&fds, 1, -1) > -1)
+    handle_events(context);
 
   return EXIT_SUCCESS;
 }
