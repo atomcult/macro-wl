@@ -50,9 +50,8 @@ void print_key(struct libinput_event *event)
   key = libinput_event_keyboard_get_key(key_event);
 
   keyname = libevdev_event_code_get_name(EV_KEY, key);
-  keyname = keyname ? keyname : "???";
 
-  printf("%s\n", keyname);
+  printf("%s\n", keyname ? keyname : "?");
 }
 
 void handle_events(struct libinput *context)
