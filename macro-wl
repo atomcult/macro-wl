@@ -1,34 +1,79 @@
 #!/bin/sh -eu
 
-: ${XDG_CONFIG_HOME:=$HOME/.config}
-OPT_CONFIG="${MACRO_CONFIG:-"${XDG_CONFIG_HOME}/macro-wl/config.env"}"
+readonly EXIT_SUCCESS=0
+readonly EXIT_FAILURE=1
 
-! [ -f "$OPT_CONFIG" ] ||
-  . "$OPT_CONFIG"
+OPT_DEVICE=""
+OPT_CONFIG=""
+OPT_QUIT_KEY="KEY_ESC"
 
-OPT_DEVICE="${MACRO_DEVICE:-}"
-[ -z "${1:-}" ] ||
-  OPT_DEVICE="$1"
+MISSING_COMMANDS=""
 
-[ -e "$OPT_DEVICE" ] || {
-  echo "USAGE: ${0} <device>" >&2
-  exit 1
+require() {
+  command -v "$1" 2>&1 >/dev/null ||
+    MISSING_COMMANDS="${MISSING_COMMANDS} ${1}"
 }
 
-OPT_QUIT_KEY="${MACRO_QUIT_KEY:-KEY_ESC}"
+import_config() {
+  : ${XDG_CONFIG_HOME:=$HOME/.config}
+  OPT_CONFIG="${MACRO_CONFIG:-"${XDG_CONFIG_HOME}/macro-wl/config.env"}"
 
-stdbuf -oL grabkb --grab "$OPT_DEVICE" | while read -r _key
-do
-  [ "$_key" != "$OPT_QUIT_KEY" ] ||
-    break
+  ! [ -f "$OPT_CONFIG" ] ||
+    . "$OPT_CONFIG"
 
-  _cmd="$(eval echo "\${MACRO_$_key:-}")"
+  OPT_DEVICE="${MACRO_DEVICE:-}"
+  [ -z "${1:-}" ] ||
+    OPT_DEVICE="$1"
 
-  [ -n "$_cmd" ] || {
-    echo " + ${_key} (unset)" >&2
-    continue
+  OPT_QUIT_KEY="${MACRO_QUIT_KEY:-$OPT_QUIT_KEY}"
+}
+
+ensure_requirements() {
+  require grabkb
+  require stdbuf
+
+  # Check for missing commands
+  [ -z "$MISSING_COMMANDS" ] || {
+    echo "${PROG_PATH}: missing commands:"
+    for _cmd in $MISSING_COMMANDS; do
+      echo "  - ${_cmd}"
+    done
+    return $EXIT_FAILURE
+  } >&2
+
+  # Emit error if device isn't provided
+  [ -e "$OPT_DEVICE" ] || {
+    echo "USAGE: ${0} <device>" >&2
+    exit $EXIT_FAILURE
   }
+}
 
-  echo " + ${_key} => ${_cmd}" >&2
-  sh -c "$_cmd" &
-done
+main() {
+  PROG_PATH="$0"
+
+  import_config "$@"
+  ensure_requirements
+
+  stdbuf -oL grabkb --grab "$OPT_DEVICE" | while read -r _key
+  do
+    # Exit if quit key is pressed
+    [ "$_key" != "$OPT_QUIT_KEY" ] ||
+      break
+
+    # Look up command for the pressed key
+    _cmd="$(eval echo "\${MACRO_$_key:-}")"
+
+    # Print key and command if set
+    [ -n "$_cmd" ] || {
+      echo " + ${_key} (unset)" >&2
+      continue
+    }
+
+    echo " + ${_key} => ${_cmd}" >&2
+    sh -c "$_cmd" &
+  done
+
+  return $EXIT_SUCCESS
+}
+
+main "$@"
