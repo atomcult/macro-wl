@@ -2,7 +2,7 @@
 	
 CC = c99
 LDFLAGS = -linput -levdev
-CFLAGS  = -I/usr/include/libevdev-1.0/libevdev -ggdb3
+CFLAGS  = -I/usr/include/libevdev-1.0/libevdev
 
 PREFIX = /usr/local
 BINDIR = ${PREFIX}/bin
