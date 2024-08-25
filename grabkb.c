@@ -117,6 +117,9 @@ static void parse_config(config *cfg, int argc, char **argv) {
     case 'g':
       cfg->grab = true;
       break;
+    case 'h':
+      fprintf(stderr, USAGE, cfg->prog_path);
+      exit(EXIT_SUCCESS);
     case 'n':
       cfg->grab = false;
       break;
