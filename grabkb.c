@@ -18,6 +18,7 @@ static const char *USAGE =
   "OPTIONS:\n"
   "  --help, -h        Print this help\n"
   "  --grab, -g        Take exclusive control of the device\n"
+  "  --no-grab, -n     Take exclusive control of the device\n"
   "  --on-press, -p    Print keys when the key is pressed (default)\n"
   "  --on-release, -r  Print keys when the key is released\n";
 
@@ -91,6 +92,7 @@ static void parse_config(config *cfg, int argc, char **argv) {
   static const struct option long_options[] = {
     {"grab",       no_argument, 0, 'g'},
     {"help",       no_argument, 0, 'h'},
+    {"no-grab",    no_argument, 0, 'n'},
     {"on-press",   no_argument, 0, 'p'},
     {"on-release", no_argument, 0, 'r'},
     {0,            no_argument, 0,  0 },
@@ -114,6 +116,9 @@ static void parse_config(config *cfg, int argc, char **argv) {
     switch (opt) {
     case 'g':
       cfg->grab = true;
+      break;
+    case 'n':
+      cfg->grab = false;
       break;
     case 'p':
       cfg->on_press = true;
