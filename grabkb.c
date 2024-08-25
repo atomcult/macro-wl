@@ -16,13 +16,16 @@ static const char *USAGE =
   "USAGE: %s [OPTIONS] <device-path>\n"
   "\n"
   "OPTIONS:\n"
-  "  --help, -h  Print this help\n"
-  "  --grab, -g  Take exclusive control of the device\n";
+  "  --help, -h        Print this help\n"
+  "  --grab, -g        Take exclusive control of the device\n"
+  "  --on-press, -p    Print keys when the key is pressed (default)\n"
+  "  --on-release, -r  Print keys when the key is released\n";
 
 typedef struct {
   char *prog_path;
   char *device_path;
   bool grab;
+  bool on_press;
 } config;
 
 static int open_restricted(const char *path, int flags, void *data) {
@@ -48,14 +51,14 @@ static const struct libinput_interface interface = {
   .close_restricted = close_restricted,
 };
 
-static void print_key(struct libinput_event *event) {
+static void print_key(config *cfg, struct libinput_event *event) {
   struct libinput_event_keyboard *key_event;
   key_event = libinput_event_get_keyboard_event(event);
 
-  enum libinput_key_state state_pressed;
-  state_pressed = libinput_event_keyboard_get_key_state(key_event);
+  enum libinput_key_state key_state;
+  key_state = libinput_event_keyboard_get_key_state(key_event);
 
-  if (state_pressed)
+  if (key_state ^ cfg->on_press)
     return;
 
   uint32_t key = libinput_event_keyboard_get_key(key_event);
@@ -65,7 +68,7 @@ static void print_key(struct libinput_event *event) {
   printf("%s\n", key_name ? key_name : "?");
 }
 
-static void handle_events(struct libinput *context) {
+static void handle_events(config *cfg, struct libinput *context) {
   struct libinput_event *event;
 
   libinput_dispatch(context);
@@ -75,7 +78,7 @@ static void handle_events(struct libinput *context) {
     enum libinput_event_type type = libinput_event_get_type(event);
     switch (type) {
     case LIBINPUT_EVENT_KEYBOARD_KEY:
-      print_key(event);
+      print_key(cfg, event);
       break;
     default:
       break;
@@ -84,17 +87,20 @@ static void handle_events(struct libinput *context) {
 }
 
 static void parse_config(config *cfg, int argc, char **argv) {
-  static const char *short_options = "gh";
+  static const char *short_options = "ghpr";
   static const struct option long_options[] = {
-    {"grab", no_argument, 0, 'g'},
-    {"help", no_argument, 0, 'h'},
-    {0,      no_argument, 0,  0 },
+    {"grab",       no_argument, 0, 'g'},
+    {"help",       no_argument, 0, 'h'},
+    {"on-press",   no_argument, 0, 'p'},
+    {"on-release", no_argument, 0, 'r'},
+    {0,            no_argument, 0,  0 },
   };
 
   // Set defaults
   cfg->prog_path   = argv[0];
   cfg->device_path = NULL;
   cfg->grab        = false;
+  cfg->on_press    = true;
 
   // Handle options
   for (;;) {
@@ -108,6 +114,12 @@ static void parse_config(config *cfg, int argc, char **argv) {
     switch (opt) {
     case 'g':
       cfg->grab = true;
+      break;
+    case 'p':
+      cfg->on_press = true;
+      break;
+    case 'r':
+      cfg->on_press = false;
       break;
     case '?':
       fprintf(stderr, "\n");
@@ -168,7 +180,7 @@ static void poll_device(config *cfg) {
   fds.revents = 0;
 
   while (poll(&fds, 1, -1) > -1)
-    handle_events(context);
+    handle_events(cfg, context);
 }
 
 int main(int argc, char **argv) {
