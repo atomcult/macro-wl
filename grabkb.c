@@ -16,11 +16,11 @@ static const char *USAGE =
   "USAGE: %s [OPTIONS] <device-path>\n"
   "\n"
   "OPTIONS:\n"
-  "  --help, -h        Print this help\n"
-  "  --grab, -g        Take exclusive control of the device\n"
-  "  --no-grab, -n     Take exclusive control of the device\n"
-  "  --on-press, -p    Print keys when the key is pressed (default)\n"
-  "  --on-release, -r  Print keys when the key is released\n";
+  "  -h, --help        Print this help\n"
+  "  -g, --grab        Take exclusive control of the device\n"
+  "  -n, --no-grab     Take exclusive control of the device\n"
+  "  -p, --on-press    Print keys when the key is pressed (default)\n"
+  "  -r, --on-release  Print keys when the key is released\n";
 
 typedef struct {
   char *prog_path;
