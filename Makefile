@@ -7,7 +7,7 @@ CFLAGS  = -I/usr/include/libevdev-1.0/libevdev
 PREFIX = /usr/local
 BINDIR = ${PREFIX}/bin
 
-grabkb:
+grabkb: grabkb.c
 	$(CC) $(CFLAGS) grabkb.c -o grabkb $(LDFLAGS)
 
 install: grabkb
